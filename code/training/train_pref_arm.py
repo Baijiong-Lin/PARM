@@ -91,9 +91,9 @@ def get_PKU_SafeRLHF(
     obj_key=None
 ):
 
-    train_dataset = load_dataset("json", data_files='./data/train.json', 
+    train_dataset = load_dataset("json", data_files='../data/train.json', 
             split='train', num_proc=num_proc)
-    test_dataset = load_dataset("json", data_files='./data/dev.json', 
+    test_dataset = load_dataset("json", data_files='../data/dev.json', 
             split='train', num_proc=num_proc)
     original_columns = train_dataset.column_names
 

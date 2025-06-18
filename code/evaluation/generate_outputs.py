@@ -87,7 +87,7 @@ def parse_arguments() -> argparse.Namespace:
     dataset_parser.add_argument(
         '--datasets',
         type=str,
-        default="./data/test_prompt_only.json"
+        default="../data/test_prompt_only.json"
     )
 
     # Logging
@@ -132,7 +132,7 @@ def get_model_arithmetic(model_pth_base, model_pth_reward_both, args):
     # note: the reward model needs to use the tokenizer of the base model for the following reasons
     # when base = llama (32000 vocab size) and arm = alpaca (might have 32001 tokens), the model_arithmetic will truncate to the tokenizer vocab size (32000) to make it work. 
     M_base = PromptedLLM(system_prompt="Not used", prompt_template=prompt_template_base, model=model_pth_base, tokenizer=tokenizer) 
-    M_reward = PromptedLLM(system_prompt="Not used", prompt_template=prompt_template_reward, model=model_pth_reward_both, tokenizer=tokenizer)
+    M_reward = PromptedLLM(system_prompt="Not used", prompt_template=prompt_template_base, model=model_pth_reward_both, tokenizer=tokenizer)
 
     formula = M_base + M_reward
     
