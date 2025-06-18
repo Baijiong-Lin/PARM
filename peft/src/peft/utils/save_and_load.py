@@ -69,7 +69,7 @@ def get_peft_model_state_dict(
     config = model.peft_config[adapter_name]
     if state_dict is None:
         state_dict = model.state_dict()
-    if config.peft_type in (PeftType.LORA, PeftType.ADALORA, PeftType.ELORA):
+    if config.peft_type in (PeftType.LORA, PeftType.ADALORA):
         # to_return = lora_state_dict(model, bias=model.peft_config.bias)
         # adapted from `https://github.com/microsoft/LoRA/blob/main/loralib/utils.py`
         # to be used directly with the state dict which is necessary when using DeepSpeed or FSDP
@@ -96,41 +96,23 @@ def get_peft_model_state_dict(
                 config.rank_pattern = rank_pattern
                 to_return = model.resize_state_dict_by_rank_pattern(rank_pattern, to_return, adapter_name)
 
-    elif config.peft_type in (PeftType.SVDLORA):
+    elif config.peft_type in (PeftType.PBLORA):
         bias = config.bias
         if bias == "none":
-            to_return = {k: state_dict[k] for k in state_dict if "svdlora_" in k}
+            to_return = {k: state_dict[k] for k in state_dict if "pblora_" in k}
         elif bias == "all":
-            to_return = {k: state_dict[k] for k in state_dict if "svdlora_" in k or "bias" in k}
+            to_return = {k: state_dict[k] for k in state_dict if "pblora_" in k or "bias" in k}
         elif bias == "lora_only":
             to_return = {}
             for k in state_dict:
-                if "svdlora_" in k:
+                if "pblora_" in k:
                     to_return[k] = state_dict[k]
-                    bias_name = k.split("svdlora_")[0] + "bias"
+                    bias_name = k.split("pblora_")[0] + "bias"
                     if bias_name in state_dict:
                         to_return[bias_name] = state_dict[bias_name]
         else:
             raise NotImplementedError
-        to_return = {k: v for k, v in to_return.items() if (("svdlora_" in k and adapter_name in k) or ("bias" in k))}
-
-    elif config.peft_type in (PeftType.MIXLORA):
-        bias = config.bias
-        if bias == "none":
-            to_return = {k: state_dict[k] for k in state_dict if "mixlora_" in k}
-        elif bias == "all":
-            to_return = {k: state_dict[k] for k in state_dict if "mixlora_" in k or "bias" in k}
-        elif bias == "lora_only":
-            to_return = {}
-            for k in state_dict:
-                if "mixlora_" in k:
-                    to_return[k] = state_dict[k]
-                    bias_name = k.split("mixlora_")[0] + "bias"
-                    if bias_name in state_dict:
-                        to_return[bias_name] = state_dict[bias_name]
-        else:
-            raise NotImplementedError
-        to_return = {k: v for k, v in to_return.items() if (("mixlora_" in k and adapter_name in k) or ("bias" in k))}
+        to_return = {k: v for k, v in to_return.items() if (("pblora_" in k and adapter_name in k) or ("bias" in k))}
 
     elif config.peft_type == PeftType.LOHA:
         to_return = {k: state_dict[k] for k in state_dict if "hada_" in k}
