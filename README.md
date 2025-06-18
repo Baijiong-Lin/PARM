@@ -25,7 +25,7 @@ cd ..
 pip install -r requirements.txt
 ```
 
-## Create data
+## Preparing Data
 ```
 cd code/data
 python relabel.py
