@@ -107,7 +107,6 @@ rouge==1.0.1
 rouge_score==0.1.2
 rsa==4.9
 sacrebleu==2.5.1
-safe-rlhf
 safetensors==0.5.3
 scikit-learn==1.6.1
 scipy==1.15.2

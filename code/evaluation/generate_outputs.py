@@ -41,7 +41,7 @@ def parse_arguments() -> argparse.Namespace:
     model_parser = parser.add_argument_group('model')
     model_parser.add_argument(
         '--model_base_name_or_path',
-        default="/path/PKU-Alignment--alpaca-7b-reproduced",
+        default="PKU-Alignment/alpaca-7b-reproduced",
         type=str,
         help='the name or path of model to load from',
     )
@@ -93,7 +93,7 @@ def parse_arguments() -> argparse.Namespace:
     dataset_parser.add_argument(
         '--datasets',
         type=str,
-        default="/path/test_prompt_only.json"
+        default="./data/test_prompt_only.json"
     )
 
     # Logging
@@ -101,7 +101,7 @@ def parse_arguments() -> argparse.Namespace:
     logging_parser.add_argument(
         '--output_dir',
         type=str,
-        default="/path/results",
+        default="./results",
         help='Where to store the evaluation output.',
     )
     logging_parser.add_argument(

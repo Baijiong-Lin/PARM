@@ -19,7 +19,7 @@ learning_rate=5e-4
 bs=32 
 per_device_train_batch_size=4
 
-model_name_or_path=/path/model--PKU-Alignment--alpaca-7b-reproduced
+model_name_or_path=PKU-Alignment/alpaca-7b-reproduced
 
 ###### the following is automatically set
 num_GPU=$(echo $cuda | awk -F, '{print NF}')
@@ -27,7 +27,7 @@ gradient_accumulation_steps=$(($bs/$num_GPU/$per_device_train_batch_size))
 preference_dataset=PKU_SafeRLHF
 # exp_name=$peft_type-$version-epoch_$epoch
 
-output_dir=/path/code/training/exp
+output_dir=./exp
 if [ -d "${output_dir}" ]; then
     echo -e "\n\n"
     echo "Error: Directory "${output_dir}" already exists. Please delete it or choose a new output_dir." >&2
@@ -35,7 +35,7 @@ if [ -d "${output_dir}" ]; then
 fi
 echo "Output dir: $output_dir"
 
-cd /path/code/training
+# cd /path/code/training
 accelerate launch --gpu_ids $cuda --main_process_port 29500 --num_processes $num_GPU train_pref_arm.py \
     --preference_dataset=$preference_dataset \
     --pref_sample_p=$pref_sample_p \

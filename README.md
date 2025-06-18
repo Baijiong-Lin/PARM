@@ -14,8 +14,21 @@ pip install -e .
 cd ../peft/
 pip install -e .
 
+conda install -c nvidia cuda-compiler
+
+cd ..
+git clone https://github.com/PKU-Alignment/safe-rlhf.git
+cd safe-rlhf
+pip install .
+
 cd ..
 pip install -r requirements.txt
+```
+
+## Create data
+```
+cd coda/data
+python relabel.py
 ```
 
 ## Training
@@ -27,8 +40,8 @@ bash run.sh
 ## Evaluation
 ```
 cd code/evaluation
-python generate_outputs.py
-python compute_reward.py
+python generate_outputs.py --model_arm_helpfulness_name_or_path /path --model_arm_harmlessness_name_or_path /path --alpha_helpfulness 0.5 --alpha_harmlessness 0.5
+python compute_reward.py --path /path
 ```
 
 ## Acknowledgement

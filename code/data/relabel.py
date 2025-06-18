@@ -4,8 +4,8 @@ from transformers import AutoTokenizer
 from safe_rlhf.models import AutoModelForScore
 from tqdm import tqdm
 
-model_path_helpful = '/path/PKU-Alignment--beaver-7b-v1.0-reward'
-model_path_harmless = '/path/PKU-Alignment--beaver-7b-v1.0-cost'
+model_path_helpful = 'PKU-Alignment/beaver-7b-v1.0-reward'
+model_path_harmless = 'PKU-Alignment/beaver-7b-v1.0-cost'
 
 model_helpful = AutoModelForScore.from_pretrained(model_path_helpful, torch_dtype=torch.bfloat16, device_map='auto')
 model_harmless = AutoModelForScore.from_pretrained(model_path_harmless, torch_dtype=torch.bfloat16, device_map='auto')

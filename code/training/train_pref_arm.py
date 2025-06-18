@@ -43,7 +43,7 @@ class ScriptArguments:
     # used by DPO or ARM
     # algorithm: Optional[str] = field(default="arm", metadata={"help": "algorithm to use [dpo, arm]"})
     model_name_or_path: Optional[str] = field(
-        default="/path/PKU-Alignment--alpaca-7b-reproduced",
+        default="PKU-Alignment/alpaca-7b-reproduced",
         metadata={"help": "the location of the to-be-finetuned model name or path"},
     )
 
@@ -91,9 +91,9 @@ def get_PKU_SafeRLHF(
     obj_key=None
 ):
 
-    train_dataset = load_dataset("json", data_files='/path/data/train.json', 
+    train_dataset = load_dataset("json", data_files='./data/train.json', 
             split='train', num_proc=num_proc)
-    test_dataset = load_dataset("json", data_files='/path/data/dev.json', 
+    test_dataset = load_dataset("json", data_files='./data/dev.json', 
             split='train', num_proc=num_proc)
     original_columns = train_dataset.column_names
 
