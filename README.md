@@ -27,7 +27,7 @@ pip install -r requirements.txt
 
 ## Create data
 ```
-cd coda/data
+cd code/data
 python relabel.py
 ```
 
