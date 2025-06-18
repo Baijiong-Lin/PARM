@@ -46,14 +46,8 @@ def parse_arguments() -> argparse.Namespace:
         help='the name or path of model to load from',
     )
     model_parser.add_argument(
-        '--model_arm_helpfulness_name_or_path',
+        '--model_parm_both_name_or_path',
         default='/path',
-        type=str,
-        help='the name or path of model to load from',
-    )
-    model_parser.add_argument(
-        '--model_arm_harmlessness_name_or_path',
-        default="/path",
         type=str,
         help='the name or path of model to load from',
     )
@@ -105,6 +99,12 @@ def parse_arguments() -> argparse.Namespace:
         help='Where to store the evaluation output.',
     )
     logging_parser.add_argument(
+        '--cache_dir',
+        type=str,
+        default="./cache",
+        help='Where to store the evaluation output.',
+    )
+    logging_parser.add_argument(
         '--resume',
         type=str2bool,
         default=False,
@@ -114,7 +114,7 @@ def parse_arguments() -> argparse.Namespace:
     return args
 
 ################ Model Arithmetic ################
-def get_model_arithmetic(model_pth_base, model_pth_reward_help, model_pth_reward_harm, model_pth_reward_concise, alpha_help, alpha_harm, alpha_concise, args):
+def get_model_arithmetic(model_pth_base, model_pth_reward_both, args):
     '''
     Return the decoding policy and the temperature (input to generate) that corresponds to temperature=1 w.r.t. decoding policy
 
@@ -132,14 +132,9 @@ def get_model_arithmetic(model_pth_base, model_pth_reward_help, model_pth_reward
     # note: the reward model needs to use the tokenizer of the base model for the following reasons
     # when base = llama (32000 vocab size) and arm = alpaca (might have 32001 tokens), the model_arithmetic will truncate to the tokenizer vocab size (32000) to make it work. 
     M_base = PromptedLLM(system_prompt="Not used", prompt_template=prompt_template_base, model=model_pth_base, tokenizer=tokenizer) 
-    M_reward_help = PromptedLLM(system_prompt="Not used", prompt_template=prompt_template_reward, model=model_pth_reward_help, tokenizer=tokenizer) if alpha_help != 0 else None
-    M_reward_harm = PromptedLLM(system_prompt="Not used", prompt_template=prompt_template_reward, model=model_pth_reward_harm, tokenizer=tokenizer) if alpha_harm != 0 else None
+    M_reward = PromptedLLM(system_prompt="Not used", prompt_template=prompt_template_reward, model=model_pth_reward_both, tokenizer=tokenizer)
 
-    formula = M_base
-    if M_reward_help is not None:
-        formula += alpha_help * M_reward_help
-    if M_reward_harm is not None:
-        formula += alpha_harm * M_reward_harm
+    formula = M_base + M_reward
     
     model = ModelArithmetic(formula, max_length = args.max_length) 
     temperature = 0
@@ -163,11 +158,22 @@ if __name__ == '__main__':
     with open(args.datasets, 'r') as f:
         data_evaluation = json.load(f)
 
+    ##### change pref_vec_init for reward ####
+    cache_path = os.path.join(args.cache_dir, model_name)
+    os.makedirs(cache_path, exist_ok=True)
+    with open(f'{args.model_parm_both_name_or_path}/adapter_config.json', 'r') as f:
+        config = json.load(f)
+
+    config['pref_vec_init'] = [args.alpha_harmlessness, args.alpha_helpfulness]
+
+    with open(f'{cache_path}/adapter_config.json', 'w', encoding='utf-8') as f:
+        json.dump(config, f, ensure_ascii=False, indent=4)
+
+    shutil.copyfile(f'{args.model_parm_both_name_or_path}/adapter_model.safetensors', f'{cache_path}/adapter_model.safetensors')
+
     ##################### Load models #####################
     model, tokenizer, temperature = get_model_arithmetic(model_pth_base=args.model_base_name_or_path, 
-                    model_pth_reward_help=args.model_arm_helpfulness_name_or_path, 
-                    model_pth_reward_harm=args.model_arm_harmlessness_name_or_path,
-                    alpha_help=args.alpha_helpfulness, alpha_harm=args.alpha_harmlessness, 
+                    model_pth_reward_both=cache_path,
                     args=args)
     model.eval()
     if args.normalize_logit:

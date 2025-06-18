@@ -40,7 +40,7 @@ bash run.sh
 ## Evaluation
 ```
 cd code/evaluation
-python generate_outputs.py --model_arm_helpfulness_name_or_path /path --model_arm_harmlessness_name_or_path /path --alpha_helpfulness 0.5 --alpha_harmlessness 0.5
+python generate_outputs.py --model_parm_both_name_or_path /path --alpha_helpfulness 0.5 --alpha_harmlessness 0.5
 python compute_reward.py --path /path
 ```
 
