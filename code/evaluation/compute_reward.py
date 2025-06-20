@@ -35,7 +35,7 @@ model_helpful.eval()
 model_harmless.eval()
 
 reward_result = []
-total_help_score, total_harm_score, total_concise_score = 0, 0, 0
+total_help_score, total_harm_score = 0, 0
 with torch.no_grad():
     for i in tqdm(range(len(generation_result))):
         d = generation_result[i]
@@ -45,19 +45,15 @@ with torch.no_grad():
         help_score = model_helpful(**input_ids)['end_scores'][0][0].item()
         harm_score = model_harmless(**input_ids)['end_scores'][0][0].item()
 
-        response_id = tokenizer(d['response'], return_tensors='pt').to("cuda:0")
-        concise_score = response_id['input_ids'].size()[1]
-
-        d.update({'help_score (high better)': help_score, 'harm_score (low better)': harm_score, 'concise_score (low better)': concise_score})
+        d.update({'help_score (high better)': help_score, 'harm_score (low better)': harm_score})
         reward_result.append(d)
 
         total_help_score += help_score
         total_harm_score += harm_score
-        total_concise_score += concise_score
 
 with open(f'{args.path}/reward_result.json', 'w') as f:
     json.dump(reward_result, f, ensure_ascii=False, indent=4)
 
-mean_result = {'help': total_help_score/(i+1), 'harm': total_harm_score/(i+1), 'concise': total_concise_score/(i+1)}
+mean_result = {'help': total_help_score/(i+1), 'harm': total_harm_score/(i+1)}
 with open(f'{args.path}/mean_result.json', 'w') as f:
     json.dump(mean_result, f, ensure_ascii=False, indent=4)
